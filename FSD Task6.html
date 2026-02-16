@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enterprise Audit Shield · Automated Logging</title>
+  <!-- Chart.js for analytics -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <!-- Font Awesome 6 (free) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(145deg, #0b1a2e 0%, #1a3b4f 50%, #1e4d63 100%);
+      background-attachment: fixed;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.4s;
+    }
+
+    /* light mode */
+    body.light-mode {
+      background: linear-gradient(145deg, #d4e3f0 0%, #b8d8ed 50%, #c9e9f6 100%);
+    }
+    body.light-mode .glass-panel,
+    body.light-mode .sidebar,
+    body.light-mode .card,
+    body.light-mode .modal-content,
+    body.light-mode .toast {
+      background: rgba(245, 248, 255, 0.7) !important;
+      backdrop-filter: blur(10px);
+      border-color: rgba(120, 140, 180, 0.3);
+      color: #0a1c2c;
+    }
+    body.light-mode .sidebar i,
+    body.light-mode .stat-label {
+      color: #1f4068;
+    }
+
+    /* main container */
+    .dashboard {
+      width: 1440px;
+      max-width: 100%;
+      display: flex;
+      gap: 20px;
+      transition: all 0.2s;
+    }
+
+    /* --- glassmorphism core --- */
+    .glass-panel {
+      background: rgba(10, 30, 45, 0.5);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(80, 160, 210, 0.25);
+      border-radius: 32px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(160, 230, 255, 0.1) inset;
+      transition: background 0.3s, border 0.3s;
+    }
+
+    /* sidebar */
+    .sidebar {
+      width: 260px;
+      padding: 28px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+      background: rgba(8, 25, 40, 0.6);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(70, 160, 220, 0.3);
+      border-radius: 40px;
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 22px;
+      font-weight: 600;
+      color: white;
+      text-shadow: 0 2px 6px rgba(0,150,255,0.5);
+      padding-left: 12px;
+    }
+    .logo-icon {
+      background: #00b4ff;
+      width: 40px;
+      height: 40px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: #0a1a2a;
+    }
+
+    .nav {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 14px 18px;
+      border-radius: 22px;
+      color: rgba(220, 240, 255, 0.9);
+      font-weight: 500;
+      transition: 0.2s;
+      cursor: default;
+    }
+    .nav-item i { width: 28px; font-size: 1.4rem; }
+    .nav-item.active {
+      background: rgba(0, 160, 255, 0.3);
+      box-shadow: 0 4px 12px rgba(0,160,255,0.3);
+      border-left: 4px solid #00ccff;
+      color: white;
+    }
+    .nav-item:not(.active):hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .status-indicator {
+      margin-top: 30px;
+      background: rgba(0, 200, 255, 0.15);
+      border-radius: 40px;
+      padding: 18px 12px;
+      text-align: center;
+      border: 1px solid #3ea0dd;
+      color: #c2e5ff;
+    }
+    .online-dot {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      background: #1effb0;
+      border-radius: 50%;
+      box-shadow: 0 0 12px #1effb0;
+      margin-right: 8px;
+    }
+
+    /* main content */
+    .main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    /* header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 28px;
+      background: rgba(8, 30, 45, 0.4);
+      backdrop-filter: blur(10px);
+      border-radius: 50px;
+    }
+    .page-title h1 { font-size: 1.9rem; font-weight: 600; color: white; letter-spacing: -0.5px; }
+    .page-title p { color: #b0d0f0; font-size: 0.9rem; }
+    .theme-toggle {
+      background: rgba(255,255,255,0.1);
+      border-radius: 60px;
+      padding: 8px 18px;
+      display: flex;
+      gap: 12px;
+      font-size: 1.3rem;
+      cursor: pointer;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    /* KPI cards */
+    .kpi-row {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+    .card {
+      background: rgba(18, 40, 58, 0.45);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(80, 180, 240, 0.3);
+      border-radius: 32px;
+      padding: 22px 28px;
+      flex: 1 1 180px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      color: white;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      transition: transform 0.15s;
+    }
+    .card:hover { transform: scale(1.01); background: rgba(30, 58, 80, 0.6); }
+    .card-icon { font-size: 2.8rem; opacity: 0.8; }
+    .card-info h3 { font-size: 2.2rem; font-weight: 700; }
+    .card-info span { color: #b0e0ff; }
+
+    /* charts row */
+    .charts-row {
+      display: flex;
+      gap: 18px;
+    }
+    .chart-panel {
+      flex: 1;
+      padding: 22px;
+      border-radius: 40px;
+      background: rgba(10, 35, 55, 0.4);
+      backdrop-filter: blur(8px);
+      border: 1px solid #2e6a8b;
+    }
+    canvas { max-height: 200px; width: 100% !important; }
+
+    /* tables & logs */
+    .section-panel {
+      padding: 24px;
+      border-radius: 40px;
+      background: rgba(9, 30, 45, 0.5);
+      backdrop-filter: blur(8px);
+    }
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      color: white;
+      margin-bottom: 16px;
+      font-size: 1.4rem;
+    }
+    .filter-bar {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .filter-bar input, .filter-bar select {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid #2580b0;
+      border-radius: 40px;
+      padding: 10px 18px;
+      color: white;
+    }
+    option { background: #1e425b; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      color: #e0f0ff;
+    }
+    th { text-align: left; padding: 16px 6px; color: #7bc5ff; font-weight: 500; }
+    td { padding: 12px 6px; border-top: 1px solid rgba(100,200,255,0.2); }
+    .log-insert { border-left: 4px solid #3ae09b; background: rgba(58, 224, 155, 0.1); }
+    .log-update { border-left: 4px solid #ffae42; background: rgba(255, 174, 66, 0.08); }
+
+    .badge {
+      background: #0e4963;
+      padding: 6px 12px;
+      border-radius: 40px;
+      font-size: 0.8rem;
+    }
+    button {
+      background: rgba(0, 180, 255, 0.3);
+      border: 1px solid #00b4ff;
+      color: white;
+      padding: 10px 22px;
+      border-radius: 40px;
+      font-weight: 600;
+      cursor: pointer;
+      backdrop-filter: blur(5px);
+      transition: 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    button:hover { background: #00a3e0; border-color: #a0e0ff; }
+
+    .modal {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(6px);
+      align-items: center; justify-content: center;
+      z-index: 1000;
+      display: none;
+    }
+    .modal.show { display: flex; }
+    .modal-content {
+      background: #102e40;
+      padding: 32px;
+      border-radius: 48px;
+      min-width: 380px;
+      border: 1px solid #4ab5ff;
+    }
+
+    .toast-area {
+      position: fixed; bottom: 30px; right: 30px; z-index: 1200;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .toast {
+      background: rgba(0, 40, 60, 0.9);
+      backdrop-filter: blur(16px);
+      border-left: 6px solid #00c3ff;
+      padding: 16px 28px;
+      border-radius: 60px;
+      color: white;
+      font-weight: 500;
+      box-shadow: 0 8px 24px black;
+      animation: slidein 0.2s;
+    }
+    @keyframes slidein { from { opacity: 0; transform: translateX(40px); } }
+
+    .spinner {
+      width: 20px; height: 20px; border: 3px solid white;
+      border-top: 3px solid transparent; border-radius: 50%;
+      animation: spin 1s infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .footer {
+      text-align: center;
+      color: #9fc8e5;
+      padding: 20px;
+      font-size: 0.9rem;
+    }
+    /* responsive */
+    @media (max-width: 900px) { .dashboard { flex-direction: column; } }
+  </style>
+</head>
+<body>
+<div class="dashboard">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar glass-panel">
+    <div class="logo-area">
+      <div class="logo-icon"><i class="fas fa-database"></i></div>
+      <span>AUDIT<span style="font-weight:300;">SHIELD</span></span>
+    </div>
+    <div class="nav">
+      <div class="nav-item active"><i class="fas fa-chart-pie"></i> Dashboard</div>
+      <div class="nav-item"><i class="fas fa-users"></i> Users</div>
+      <div class="nav-item"><i class="fas fa-history"></i> Audit Logs</div>
+      <div class="nav-item"><i class="fas fa-file-alt"></i> Reports</div>
+    </div>
+    <div class="status-indicator">
+      <span class="online-dot"></span> Monitoring Active<br>
+      <span style="font-size:0.8rem;">DB: Oracle Sim · v.2.4</span>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main-content">
+
+    <!-- header -->
+    <div class="header glass-panel">
+      <div class="page-title">
+        <h1>Audit logging trigger · view simulation</h1>
+        <p><i class="fas fa-bolt"></i> AFTER INSERT / UPDATE trigger fires automatically</p>
+      </div>
+      <div class="theme-toggle" id="themeToggle">
+        <i class="fas fa-sun"></i><i class="fas fa-moon"></i>
+      </div>
+    </div>
+
+    <!-- KPI cards -->
+    <div class="kpi-row">
+      <div class="card"><i class="fas fa-database card-icon"></i><div class="card-info"><h3 id="totalRecords">0</h3><span>total records</span></div></div>
+      <div class="card"><i class="fas fa-plus-circle card-icon" style="color:#6ae2a0;"></i><div class="card-info"><h3 id="totalInserts">0</h3><span>inserts</span></div></div>
+      <div class="card"><i class="fas fa-pen card-icon" style="color:#fdb45e;"></i><div class="card-info"><h3 id="totalUpdates">0</h3><span>updates</span></div></div>
+      <div class="card"><i class="fas fa-calendar-day card-icon"></i><div class="card-info"><h3 id="todayActivity">0</h3><span>today</span></div></div>
+    </div>
+
+    <!-- charts -->
+    <div class="charts-row">
+      <div class="chart-panel"><canvas id="barChart"></canvas></div>
+      <div class="chart-panel"><canvas id="pieChart"></canvas></div>
+    </div>
+
+    <!-- USER table (manage) -->
+    <div class="section-panel">
+      <div class="section-title">
+        <span><i class="fas fa-user-edit"></i> Users (simulated table)</span>
+        <div><button id="addUserBtn"><i class="fas fa-plus"></i> Add user</button></div>
+      </div>
+      <div style="margin-bottom:16px; display:flex; gap:10px;">
+        <input type="text" id="searchUser" placeholder="🔍 Search by name / role" style="flex:1;">
+      </div>
+      <div style="overflow-x: auto;">
+        <table id="userTable">
+          <thead><tr><th>ID</th><th>Name</th><th>Role</th><th>Status</th><th>Updated</th><th></th></tr></thead>
+          <tbody id="userBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- audit log + view simulation (daily activity) -->
+    <div class="section-panel">
+      <div class="section-title">
+        <span><i class="fas fa-eye"></i> Daily activity view (simulated) </span>
+        <div class="filter-bar">
+          <select id="filterOp"><option value="all">all ops</option><option value="INSERT">INSERT</option><option value="UPDATE">UPDATE</option></select>
+          <input type="date" id="filterDate" />
+          <button id="exportCsv"><i class="fas fa-download"></i> CSV</button>
+          <button id="clearLogs" style="border-color:#ff7171;"><i class="fas fa-trash"></i> clear</button>
+        </div>
+      </div>
+      <div style="max-height:240px; overflow:auto; border-radius: 30px;">
+        <table id="auditViewTable">
+          <thead><tr><th>log_id</th><th>op_type</th><th>table</th><th>record_id</th><th>timestamp</th><th>changed_data</th></tr></thead>
+          <tbody id="auditBody"></tbody>
+        </table>
+      </div>
+      <div style="margin-top:15px;"><i class="fas fa-bolt" style="color:#00f0b0;"></i> <span id="triggerMsg">Trigger idle</span></div>
+    </div>
+
+    <!-- footer -->
+    <div class="footer">Enterprise Audit Shield · v2.4 · All triggers simulated in JavaScript</div>
+  </div>
+</div>
+
+<!-- MODAL add/edit -->
+<div class="modal" id="userModal">
+  <div class="modal-content">
+    <h2 style="color:white;" id="modalTitle">➕ Add user</h2>
+    <input type="hidden" id="editId">
+    <div style="margin:20px 0; display:flex; flex-direction:column; gap:18px;">
+      <input type="text" id="userName" placeholder="Full name" style="padding:14px; border-radius:60px; border:none; background:#1e4963; color:white;">
+      <input type="text" id="userRole" placeholder="Role" style="padding:14px; border-radius:60px; background:#1e4963; color:white;">
+      <select id="userStatus" style="padding:14px; border-radius:60px; background:#1e4963; color:white;">
+        <option>active</option><option>inactive</option>
+      </select>
+    </div>
+    <div style="display:flex; gap:12px; justify-content:end;">
+      <button id="cancelModal">Cancel</button>
+      <button id="saveUser" style="background:#0099dd;"><span class="spinner" id="modalSpinner" style="display:none;"></span> Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- toast area -->
+<div class="toast-area" id="toastArea"></div>
+
+<script>
+(function() {
+  // ------------------ SIMULATED DB TABLES ------------------
+  let users = [
+    { user_id: 1, name: 'Alice Chen', role: 'Compliance', status: 'active', created_at: '2025-02-15T09:22', updated_at: '2025-02-15T09:22' },
+    { user_id: 2, name: 'Bob Omondi', role: 'Auditor', status: 'active', created_at: '2025-02-16T11:03', updated_at: '2025-02-16T11:03' },
+    { user_id: 3, name: 'Carol Nyx', role: 'Manager', status: 'inactive', created_at: '2025-02-16T15:20', updated_at: '2025-02-17T08:14' },
+  ];
+
+  // Audit_log table: auto-filled by trigger (simulated)
+  let auditLog = [
+        { log_id: 1, operation_type: 'INSERT', table_name: 'users', record_id: 1, timestamp: '2025-02-15T09:22', changed_data: '{"name":"Alice Chen"}' },
+        { log_id: 2, operation_type: 'INSERT', table_name: 'users', record_id: 2, timestamp: '2025-02-16T11:03', changed_data: '{"name":"Bob Omondi"}' },
+        { log_id: 3, operation_type: 'INSERT', table_name: 'users', record_id: 3, timestamp: '2025-02-16T15:20', changed_data: '{"name":"Carol Nyx"}' },
+        { log_id: 4, operation_type: 'UPDATE', table_name: 'users', record_id: 3, timestamp: '2025-02-17T08:14', changed_data: '{"status":"inactive"}' }
+      ];
+
+  let nextLogId = 5;
+  let nextUserId = 4;
+
+  // ------------------ TRIGGER SIMULATION ------------------
+  function triggerAfterInsert(record, tableName) {
+    const logEntry = {
+      log_id: nextLogId++,
+      operation_type: 'INSERT',
+      table_name: tableName,
+      record_id: record.user_id,
+      timestamp: new Date().toISOString().slice(0,16).replace('T',' '), // YYYY-MM-DD HH:MM
+      changed_data: JSON.stringify({ name: record.name, role: record.role, status: record.status })
+    };
+    auditLog.push(logEntry);
+    showToast(`⚡ Trigger fired: INSERT into ${tableName} (ID ${record.user_id})`, '#3ae09b');
+    updateTriggerMsg(`INSERT logged (ID ${record.user_id})`);
+    renderAll();
+  }
+
+  function triggerAfterUpdate(oldRecord, newRecord, tableName) {
+    // capture changes (simplified: whole new object)
+    const changes = {};
+    for (let key in newRecord) {
+      if (oldRecord[key] !== newRecord[key]) changes[key] = newRecord[key];
+    }
+    const logEntry = {
+      log_id: nextLogId++,
+      operation_type: 'UPDATE',
+      table_name: tableName,
+      record_id: newRecord.user_id,
+      timestamp: new Date().toISOString().slice(0,16).replace('T',' '),
+      changed_data: JSON.stringify(changes)
+    };
+    auditLog.push(logEntry);
+    showToast(`⚡ Trigger fired: UPDATE on ${tableName} ID ${newRecord.user_id}`, '#ffae42');
+    updateTriggerMsg(`UPDATE logged (ID ${newRecord.user_id})`);
+    renderAll();
+  }
+
+  // helper to update trigger msg
+  function updateTriggerMsg(text) {
+    document.getElementById('triggerMsg').innerHTML = `<i class="fas fa-bolt"></i> Trigger fired: ${text}`;
+    setTimeout(() => document.getElementById('triggerMsg').innerHTML = '<i class="fas fa-bolt"></i> Trigger idle', 3000);
+  }
+
+  // ------------------ CRUD with automatic trigger -------------
+  function insertUser(name, role, status) {
+    const now = new Date().toISOString().slice(0,16).replace('T',' ');
+    const newUser = {
+      user_id: nextUserId++,
+      name, role, status,
+      created_at: now,
+      updated_at: now
+    };
+    users.push(newUser);
+    triggerAfterInsert(newUser, 'users');
+  }
+
+  function updateUser(userId, newName, newRole, newStatus) {
+    const index = users.findIndex(u => u.user_id === userId);
+    if (index === -1) return;
+    const oldUser = { ...users[index] };
+    users[index].name = newName;
+    users[index].role = newRole;
+    users[index].status = newStatus;
+    users[index].updated_at = new Date().toISOString().slice(0,16).replace('T',' ');
+    triggerAfterUpdate(oldUser, users[index], 'users');
+  }
+
+  function deleteUser(userId) {   // extra (optional)
+    users = users.filter(u => u.user_id !== userId);
+    // we do NOT trigger for delete (only insert/update)
+    renderAll();
+    showToast('User deleted (no trigger required)');
+  }
+
+  // ------------------ VIEW SIMULATION: daily activity ----------
+  function getDailyView() {
+    const map = new Map();
+    auditLog.forEach(log => {
+      const date = log.timestamp.split('T')[0]; // simple
+      if (!map.has(date)) map.set(date, { date, total:0, inserts:0, updates:0 });
+      const rec = map.get(date);
+      rec.total++;
+      if (log.operation_type === 'INSERT') rec.inserts++;
+      else if (log.operation_type === 'UPDATE') rec.updates++;
+    });
+    return Array.from(map.values()).sort((a,b)=>a.date.localeCompare(b.date));
+  }
+
+  // ------------------ render everything (dashboard, tables, charts) -----
+  function renderAll() {
+    renderUsers();
+    renderAuditLogs();
+    updateKPI();
+    updateCharts();
+  }
+
+  function renderUsers() {
+    const search = document.getElementById('searchUser').value.toLowerCase();
+    const filtered = users.filter(u => u.name.toLowerCase().includes(search) || u.role.toLowerCase().includes(search));
+    let html = '';
+    filtered.forEach(u => {
+      html += `<tr>
+        <td>${u.user_id}</td><td>${u.name}</td><td>${u.role}</td><td><span class="badge">${u.status}</span></td>
+        <td>${u.updated_at}</td>
+        <td><button class="editBtn" data-id="${u.user_id}" style="padding:6px 14px;"><i class="fas fa-pen"></i></button>
+        <button class="delBtn" data-id="${u.user_id}" style="padding:6px 14px; border-color:#ff8a8a;"><i class="fas fa-trash"></i></button></td>
+      </tr>`;
+    });
+    document.getElementById('userBody').innerHTML = html;
+
+    document.querySelectorAll('.editBtn').forEach(b => b.addEventListener('click', (e) => openEditModal(parseInt(e.target.closest('button').dataset.id))));
+    document.querySelectorAll('.delBtn').forEach(b => b.addEventListener('click', (e) => { if(confirm('Delete user?')) deleteUser(parseInt(e.target.closest('button').dataset.id)); }));
+  }
+
+  function renderAuditLogs() {
+    const opFilter = document.getElementById('filterOp').value;
+    const dateFilter = document.getElementById('filterDate').value;
+    let filtered = [...auditLog];
+    if (opFilter !== 'all') filtered = filtered.filter(l => l.operation_type === opFilter);
+    if (dateFilter) filtered = filtered.filter(l => l.timestamp.startsWith(dateFilter));
+    filtered.sort((a,b)=> b.log_id - a.log_id);
+    let html = '';
+    filtered.forEach(l => {
+      const rowClass = l.operation_type === 'INSERT' ? 'log-insert' : 'log-update';
+      html += `<tr class="${rowClass}"><td>${l.log_id}</td><td>${l.operation_type}</td><td>${l.table_name}</td><td>${l.record_id}</td>
+      <td>${l.timestamp}</td><td>${l.changed_data.substring(0,30)}...</td></tr>`;
+    });
+    document.getElementById('auditBody').innerHTML = html;
+  }
+
+  function updateKPI() {
+    document.getElementById('totalRecords').innerText = users.length;
+    const inserts = auditLog.filter(l => l.operation_type === 'INSERT').length;
+    const updates = auditLog.filter(l => l.operation_type === 'UPDATE').length;
+    document.getElementById('totalInserts').innerText = inserts;
+    document.getElementById('totalUpdates').innerText = updates;
+    const today = new Date().toISOString().slice(0,10);
+    const todayAct = auditLog.filter(l => l.timestamp.startsWith(today)).length;
+    document.getElementById('todayActivity').innerText = todayAct;
+  }
+
+  // charts
+  let barChart, pieChart;
+  function updateCharts() {
+    const view = getDailyView().slice(-5);
+    const labels = view.map(v => v.date);
+    const insertData = view.map(v => v.inserts);
+    const updateData = view.map(v => v.updates);
+    if (barChart) barChart.destroy();
+    if (pieChart) pieChart.destroy();
+    const ctxBar = document.getElementById('barChart').getContext('2d');
+    barChart = new Chart(ctxBar, {
+      type:'bar', data: { labels, datasets:[{ label:'INSERT', data:insertData, backgroundColor:'#3ae09b' },{ label:'UPDATE', data:updateData, backgroundColor:'#ffae42' }] },
+      options:{ responsive: true, maintainAspectRatio:false, plugins:{ legend:{ labels:{ color:'white' } } } }
+    });
+    const ctxPie = document.getElementById('pieChart').getContext('2d');
+    const totalIns = auditLog.filter(l=>l.operation_type==='INSERT').length;
+    const totalUpd = auditLog.filter(l=>l.operation_type==='UPDATE').length;
+    pieChart = new Chart(ctxPie, {
+      type:'pie', data: { labels:['INSERT','UPDATE'], datasets:[{ data:[totalIns,totalUpd], backgroundColor:['#3ae09b','#ffae42'] }] },
+      options:{ plugins:{ legend:{ labels:{ color:'white' } } } }
+    });
+  }
+
+  // toasts
+  function showToast(text, color = '#00c3ff') {
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.style.borderLeftColor = color;
+    toast.innerText = text;
+    document.getElementById('toastArea').appendChild(toast);
+    setTimeout(() => toast.remove(), 3500);
+  }
+
+  // modal logic
+  const modal = document.getElementById('userModal');
+  document.getElementById('addUserBtn').addEventListener('click', () => {
+    document.getElementById('modalTitle').innerText = '➕ Add user';
+    document.getElementById('editId').value = '';
+    document.getElementById('userName').value = '';
+    document.getElementById('userRole').value = '';
+    document.getElementById('userStatus').value = 'active';
+    modal.classList.add('show');
+  });
+  function openEditModal(id) {
+    const u = users.find(u => u.user_id === id);
+    if (!u) return;
+    document.getElementById('modalTitle').innerText = '✏️ Edit user';
+    document.getElementById('editId').value = u.user_id;
+    document.getElementById('userName').value = u.name;
+    document.getElementById('userRole').value = u.role;
+    document.getElementById('userStatus').value = u.status;
+    modal.classList.add('show');
+  }
+  document.getElementById('cancelModal').addEventListener('click', () => modal.classList.remove('show'));
+  document.getElementById('saveUser').addEventListener('click', () => {
+    const id = document.getElementById('editId').value;
+    const name = document.getElementById('userName').value.trim();
+    const role = document.getElementById('userRole').value.trim();
+    const status = document.getElementById('userStatus').value;
+    if (!name || !role) return alert('fill fields');
+    if (id === '') {  // insert
+      insertUser(name, role, status);
+    } else {
+      updateUser(parseInt(id), name, role, status);
+    }
+    modal.classList.remove('show');
+    renderAll();
+  });
+
+  // clear logs simulation (just empty audit array)
+  document.getElementById('clearLogs').addEventListener('click', ()=>{
+    if(confirm('Clear audit log?')) { auditLog = []; nextLogId = 1; renderAll(); showToast('Logs cleared'); }
+  });
+
+  // export CSV
+  document.getElementById('exportCsv').addEventListener('click', ()=>{
+    let csv = 'log_id,op,table,record,timestamp,data\n';
+    auditLog.forEach(l => csv += `${l.log_id},${l.operation_type},${l.table_name},${l.record_id},${l.timestamp},"${l.changed_data}"\n`);
+    const blob = new Blob([csv], {type:'text/csv'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'audit_log.csv'; a.click();
+    showToast('CSV exported');
+  });
+
+  // filter listeners
+  document.getElementById('filterOp').addEventListener('change', renderAuditLogs);
+  document.getElementById('filterDate').addEventListener('change', renderAuditLogs);
+  document.getElementById('searchUser').addEventListener('input', renderUsers);
+
+  // theme toggle
+  document.getElementById('themeToggle').addEventListener('click', () => document.body.classList.toggle('light-mode'));
+
+  // initial
+  renderAll();
+})();
+</script>
+</body>
+</html>

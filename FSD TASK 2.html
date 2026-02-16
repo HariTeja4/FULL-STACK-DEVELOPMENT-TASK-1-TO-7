@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Student / Employee Records</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(15px);
+      padding: 25px;
+      border-radius: 15px;
+      width: 100%;
+      max-width: 1000px;
+      color: white;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 15px;
+      justify-content: space-between;
+    }
+
+    input, select {
+      padding: 8px;
+      border-radius: 6px;
+      border: none;
+      outline: none;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+      background: white;
+      color: #333;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    th, td {
+      padding: 10px;
+      text-align: left;
+    }
+
+    th {
+      background: #667eea;
+      color: white;
+    }
+
+    tr:nth-child(even) {
+      background: #f2f2f2;
+    }
+
+    tr:hover {
+      background: #dfe6ff;
+      transition: 0.3s;
+    }
+
+    .stats {
+      margin-top: 20px;
+      background: rgba(255,255,255,0.2);
+      padding: 10px;
+      border-radius: 8px;
+    }
+
+    .stats ul {
+      list-style: none;
+      margin-top: 5px;
+    }
+
+    .stats li {
+      margin-bottom: 4px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media(max-width: 600px){
+      .controls {
+        flex-direction: column;
+      }
+    }
+
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>📋 Student / Employee Records</h2>
+
+  <div class="controls">
+    <input type="text" id="searchInput" placeholder="Search by name..." onkeyup="applyFilters()">
+
+    <select id="sortOption" onchange="applyFilters()">
+      <option value="">Sort By</option>
+      <option value="nameAsc">Name (A-Z)</option>
+      <option value="nameDesc">Name (Z-A)</option>
+      <option value="dateAsc">Date (Oldest)</option>
+      <option value="dateDesc">Date (Newest)</option>
+    </select>
+
+    <select id="departmentFilter" onchange="applyFilters()">
+      <option value="All">All Departments</option>
+    </select>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Department</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+
+  <div class="stats">
+    <strong>Total Records: <span id="totalCount"></span></strong>
+    <ul id="departmentCount"></ul>
+  </div>
+</div>
+
+<script>
+  const records = [
+    { name: "Alice", department: "HR", date: "2023-04-12" },
+    { name: "Bob", department: "IT", date: "2022-11-20" },
+    { name: "Charlie", department: "Finance", date: "2023-01-15" },
+    { name: "David", department: "IT", date: "2021-09-10" },
+    { name: "Eva", department: "HR", date: "2023-06-01" },
+    { name: "Frank", department: "Marketing", date: "2022-03-18" }
+  ];
+
+  const tableBody = document.getElementById("tableBody");
+  const departmentFilter = document.getElementById("departmentFilter");
+
+  function populateDepartments() {
+    const departments = [...new Set(records.map(r => r.department))];
+    departments.forEach(dept => {
+      const option = document.createElement("option");
+      option.value = dept;
+      option.textContent = dept;
+      departmentFilter.appendChild(option);
+    });
+  }
+
+  function displayRecords(data) {
+    tableBody.innerHTML = "";
+    data.forEach(record => {
+      tableBody.innerHTML += `
+        <tr>
+          <td>${record.name}</td>
+          <td>${record.department}</td>
+          <td>${record.date}</td>
+        </tr>
+      `;
+    });
+
+    document.getElementById("totalCount").textContent = data.length;
+    updateDepartmentCount(data);
+  }
+
+  function updateDepartmentCount(data) {
+    const countMap = {};
+    data.forEach(r => {
+      countMap[r.department] = (countMap[r.department] || 0) + 1;
+    });
+
+    const deptList = document.getElementById("departmentCount");
+    deptList.innerHTML = "";
+
+    for (let dept in countMap) {
+      deptList.innerHTML += `<li>${dept}: ${countMap[dept]}</li>`;
+    }
+  }
+
+  function applyFilters() {
+    let filtered = [...records];
+
+    const searchValue = document.getElementById("searchInput").value.toLowerCase();
+    const selectedDept = departmentFilter.value;
+    const sortValue = document.getElementById("sortOption").value;
+
+    // Search
+    if (searchValue) {
+      filtered = filtered.filter(r =>
+        r.name.toLowerCase().includes(searchValue)
+      );
+    }
+
+    // Department Filter
+    if (selectedDept !== "All") {
+      filtered = filtered.filter(r =>
+        r.department === selectedDept
+      );
+    }
+
+    // Sorting
+    if (sortValue === "nameAsc") {
+      filtered.sort((a,b) => a.name.localeCompare(b.name));
+    } else if (sortValue === "nameDesc") {
+      filtered.sort((a,b) => b.name.localeCompare(a.name));
+    } else if (sortValue === "dateAsc") {
+      filtered.sort((a,b) => new Date(a.date) - new Date(b.date));
+    } else if (sortValue === "dateDesc") {
+      filtered.sort((a,b) => new Date(b.date) - new Date(a.date));
+    }
+
+    displayRecords(filtered);
+  }
+
+  populateDepartments();
+  displayRecords(records);
+</script>
+
+</body>
+</html>

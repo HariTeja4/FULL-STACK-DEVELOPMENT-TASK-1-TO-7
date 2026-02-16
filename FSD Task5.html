@@ -1,0 +1,1598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecurePay | Transaction Simulation Dashboard</title>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-gradient: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+            --warning-gradient: linear-gradient(135deg, #fad0c4 0%, #ffd1ff 100%);
+            --glass-bg: rgba(255, 255, 255, 0.25);
+            --glass-border: rgba(255, 255, 255, 0.18);
+            --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1a1a2e;
+            --bg-secondary: #16213e;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --card-bg: #0f3460;
+            --glass-bg: rgba(15, 52, 96, 0.4);
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f8f9fa;
+            --bg-secondary: #ffffff;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --card-bg: #ffffff;
+            --glass-bg: rgba(255, 255, 255, 0.25);
+        }
+
+        body {
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            min-height: 100vh;
+            padding: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Floating Particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            animation: floatParticle linear infinite;
+        }
+
+        @keyframes floatParticle {
+            0% {
+                transform: translateY(100vh) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.5;
+            }
+            90% {
+                opacity: 0.5;
+            }
+            100% {
+                transform: translateY(-100vh) scale(1);
+                opacity: 0;
+            }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px 30px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            animation: slideInDown 1s ease;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo i {
+            font-size: 40px;
+            color: white;
+            animation: rotate 10s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .logo h1 {
+            color: white;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .logo p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 12px;
+        }
+
+        .theme-toggle {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 20px;
+        }
+
+        .theme-toggle:hover {
+            transform: rotate(180deg);
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        /* Account Cards */
+        .account-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 1s ease;
+        }
+
+        .account-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: rotate(45deg);
+            animation: shine 3s infinite;
+        }
+
+        .account-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--primary-gradient);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-icon i {
+            font-size: 30px;
+            color: white;
+        }
+
+        .card-title h3 {
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .card-title p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 12px;
+        }
+
+        .account-details {
+            margin-bottom: 20px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .detail-label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+        }
+
+        .detail-value {
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .balance {
+            font-size: 28px;
+            font-weight: 700;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .balance small {
+            font-size: 14px;
+            font-weight: 400;
+            opacity: 0.8;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            animation: fadeInUp 1s ease;
+        }
+
+        .stat-card i {
+            font-size: 30px;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .stat-card h4 {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .stat-value {
+            color: white;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        /* Payment Section */
+        .payment-section {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            animation: fadeInLeft 1s ease;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+            margin-bottom: 25px;
+        }
+
+        .section-title i {
+            font-size: 24px;
+        }
+
+        .payment-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            color: white;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .form-control option {
+            background: #333;
+            color: white;
+        }
+
+        .transaction-ref {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 12px;
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            color: white;
+            font-family: monospace;
+            font-size: 18px;
+            text-align: center;
+        }
+
+        .pay-btn {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+            grid-column: span 2;
+        }
+
+        .pay-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .pay-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .pay-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .pay-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pay-btn.loading {
+            pointer-events: none;
+        }
+
+        .pay-btn.loading i {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+            display: none;
+        }
+
+        .progress-bar.active {
+            display: block;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary-gradient);
+            width: 0%;
+            transition: width 0.3s ease;
+            animation: progressPulse 1s ease infinite;
+        }
+
+        @keyframes progressPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        /* Transaction Log */
+        .log-section {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 25px;
+            animation: fadeInRight 1s ease;
+        }
+
+        .log-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .log-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #dc3545;
+        }
+
+        .btn-success {
+            background: #28a745;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            max-height: 400px;
+            overflow-y: auto;
+            border-radius: 12px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 15px;
+            font-weight: 500;
+            position: sticky;
+            top: 0;
+        }
+
+        td {
+            padding: 12px 15px;
+            color: white;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        tr {
+            transition: all 0.3s ease;
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-success {
+            background: rgba(40, 167, 69, 0.2);
+            color: #28a745;
+            border: 1px solid #28a745;
+        }
+
+        .status-failed {
+            background: rgba(220, 53, 69, 0.2);
+            color: #dc3545;
+            border: 1px solid #dc3545;
+        }
+
+        .commit-badge {
+            background: rgba(40, 167, 69, 0.2);
+            color: #28a745;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .rollback-badge {
+            background: rgba(220, 53, 69, 0.2);
+            color: #dc3545;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        /* OTP Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            animation: slideInUp 0.5s ease;
+        }
+
+        .modal-content h2 {
+            color: var(--text-primary);
+            margin-bottom: 20px;
+        }
+
+        .otp-display {
+            font-size: 48px;
+            font-weight: 700;
+            color: #667eea;
+            letter-spacing: 10px;
+            margin: 30px 0;
+            padding: 20px;
+            background: #f0f0f0;
+            border-radius: 15px;
+            font-family: monospace;
+        }
+
+        .otp-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 24px;
+            text-align: center;
+            letter-spacing: 8px;
+            border: 2px solid #e1e1e1;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-family: monospace;
+        }
+
+        /* Animations */
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes shine {
+            0% {
+                transform: translateX(-100%) rotate(45deg);
+            }
+            20%, 100% {
+                transform: translateX(100%) rotate(45deg);
+            }
+        }
+
+        /* Success Checkmark Animation */
+        .success-checkmark {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+        }
+
+        .check-icon {
+            width: 80px;
+            height: 80px;
+            position: relative;
+            border-radius: 50%;
+            box-sizing: content-box;
+            border: 4px solid #28a745;
+        }
+
+        .check-icon::before {
+            top: 3px;
+            left: -2px;
+            width: 30px;
+            transform-origin: 100% 50%;
+            border-radius: 100px 0 0 100px;
+        }
+
+        .check-icon::after {
+            top: 0;
+            left: 30px;
+            width: 60px;
+            transform-origin: 0 50%;
+            border-radius: 0 100px 100px 0;
+            animation: rotate-circle 4.25s ease-in;
+        }
+
+        .check-icon::before,
+        .check-icon::after {
+            content: '';
+            height: 100px;
+            position: absolute;
+            background: #fff;
+            transform: rotate(-45deg);
+        }
+
+        .icon-line {
+            height: 5px;
+            background-color: #28a745;
+            display: block;
+            border-radius: 2px;
+            position: absolute;
+            z-index: 10;
+        }
+
+        .icon-line.line-tip {
+            top: 46px;
+            left: 14px;
+            width: 25px;
+            transform: rotate(45deg);
+            animation: animate-tip 0.75s;
+        }
+
+        .icon-line.line-long {
+            top: 38px;
+            left: 24px;
+            width: 47px;
+            transform: rotate(-45deg);
+            animation: animate-long 0.75s;
+        }
+
+        @keyframes animate-tip {
+            0% {
+                width: 0;
+                left: 1px;
+                top: 19px;
+            }
+            54% {
+                width: 0;
+                left: 1px;
+                top: 19px;
+            }
+            70% {
+                width: 50px;
+                left: -8px;
+                top: 37px;
+            }
+            84% {
+                width: 17px;
+                left: 21px;
+                top: 48px;
+            }
+            100% {
+                width: 25px;
+                left: 14px;
+                top: 45px;
+            }
+        }
+
+        @keyframes animate-long {
+            0% {
+                width: 0;
+                right: 46px;
+                top: 54px;
+            }
+            65% {
+                width: 0;
+                right: 46px;
+                top: 54px;
+            }
+            84% {
+                width: 55px;
+                right: 0px;
+                top: 35px;
+            }
+            100% {
+                width: 47px;
+                right: 8px;
+                top: 38px;
+            }
+        }
+
+        /* Error Shake Animation */
+        .error-shake {
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .payment-form {
+                grid-template-columns: 1fr;
+            }
+
+            .pay-btn {
+                grid-column: span 1;
+            }
+
+            .log-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .log-actions {
+                width: 100%;
+            }
+
+            .btn {
+                flex: 1;
+            }
+        }
+
+        /* Transaction Status Indicator */
+        .status-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            z-index: 1000;
+            animation: slideInRight 0.3s ease;
+        }
+
+        .status-indicator.success {
+            background: linear-gradient(135deg, #28a745, #20c997);
+        }
+
+        .status-indicator.error {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+        }
+
+        .status-indicator i {
+            font-size: 20px;
+        }
+
+        .fraud-alert {
+            background: linear-gradient(135deg, #ff6b6b, #ee5253);
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background: #333;
+            color: #fff;
+            text-align: center;
+            padding: 5px;
+            border-radius: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body data-theme="light">
+    <!-- Particles Background -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Transaction Status Indicator -->
+    <div class="status-indicator" id="statusIndicator">
+        <i class="fas fa-check-circle"></i>
+        <span id="statusMessage">Transaction Committed</span>
+    </div>
+
+    <!-- OTP Modal -->
+    <div class="modal" id="otpModal">
+        <div class="modal-content">
+            <h2>OTP Verification</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 20px;">Enter the 4-digit code sent to your phone</p>
+            <div class="otp-display" id="otpDisplay">1234</div>
+            <input type="text" class="otp-input" id="otpInput" maxlength="4" placeholder="----">
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-success" style="flex: 1;" onclick="verifyOTP()">Verify</button>
+                <button class="btn btn-danger" style="flex: 1;" onclick="closeOTPModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">
+                <i class="fas fa-shield-alt"></i>
+                <div>
+                    <h1>SecurePay</h1>
+                    <p>PCI-DSS Compliant • 256-bit Encrypted</p>
+                </div>
+            </div>
+            <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+
+        <!-- Dashboard Summary Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <i class="fas fa-exchange-alt"></i>
+                <h4>Total Transactions</h4>
+                <div class="stat-value" id="totalTransactions">0</div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-check-circle"></i>
+                <h4>Successful</h4>
+                <div class="stat-value" id="successfulTransactions">0</div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-times-circle"></i>
+                <h4>Failed</h4>
+                <div class="stat-value" id="failedTransactions">0</div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-dollar-sign"></i>
+                <h4>Total Revenue</h4>
+                <div class="stat-value" id="totalRevenue">$0</div>
+            </div>
+        </div>
+
+        <!-- Accounts Section -->
+        <div class="dashboard-grid">
+            <!-- User Account -->
+            <div class="account-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="card-title">
+                        <h3>User Account</h3>
+                        <p>Primary Account Holder</p>
+                    </div>
+                </div>
+                <div class="account-details">
+                    <div class="detail-row">
+                        <span class="detail-label">Account Name</span>
+                        <span class="detail-value" id="userName">John Anderson</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Account Number</span>
+                        <span class="detail-value" id="userAccount">**** 4582</span>
+                    </div>
+                </div>
+                <div class="balance">
+                    $<span id="userBalance">15250.75</span>
+                    <small>USD</small>
+                </div>
+            </div>
+
+            <!-- Merchant Account -->
+            <div class="account-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-store"></i>
+                    </div>
+                    <div class="card-title">
+                        <h3>Merchant Account</h3>
+                        <p>TechStore Inc.</p>
+                    </div>
+                </div>
+                <div class="account-details">
+                    <div class="detail-row">
+                        <span class="detail-label">Merchant Name</span>
+                        <span class="detail-value" id="merchantName">TechStore Inc.</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Merchant ID</span>
+                        <span class="detail-value" id="merchantId">MER-2024-001</span>
+                    </div>
+                </div>
+                <div class="balance">
+                    $<span id="merchantBalance">8745.30</span>
+                    <small>USD</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Section -->
+        <div class="payment-section">
+            <div class="section-title">
+                <i class="fas fa-credit-card"></i>
+                <h2>Process Payment</h2>
+            </div>
+
+            <!-- Fraud Detection Alert (Random) -->
+            <div class="fraud-alert" id="fraudAlert" style="display: none;">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>⚠️ Unusual activity detected! Additional verification required.</span>
+            </div>
+
+            <div class="payment-form">
+                <div class="form-group">
+                    <label><i class="fas fa-dollar-sign"></i> Amount</label>
+                    <input type="number" class="form-control" id="amount" placeholder="Enter amount" min="0.01" step="0.01">
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-credit-card"></i> Payment Method</label>
+                    <select class="form-control" id="paymentMethod">
+                        <option value="card">💳 Credit/Debit Card</option>
+                        <option value="upi">📱 UPI (Google Pay/PhonePe)</option>
+                        <option value="netbanking">🏦 Net Banking</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-hashtag"></i> Transaction Reference</label>
+                    <div class="transaction-ref" id="transactionRef">TXN-2024-001234</div>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-shield-alt"></i> Security</label>
+                    <div style="display: flex; gap: 10px;">
+                        <span class="tooltip">
+                            <i class="fas fa-lock" style="color: #28a745;"></i> 256-bit SSL
+                            <span class="tooltiptext">Connection is secure and encrypted</span>
+                        </span>
+                        <span class="tooltip">
+                            <i class="fas fa-check-circle" style="color: #28a745;"></i> PCI Compliant
+                            <span class="tooltiptext">Payment Card Industry compliant</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="progress-bar" id="progressBar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+
+            <button class="pay-btn" id="payBtn" onclick="processPayment()">
+                <i class="fas fa-lock"></i>
+                <span>Pay Securely</span>
+            </button>
+        </div>
+
+        <!-- Transaction Log Section -->
+        <div class="log-section">
+            <div class="log-header">
+                <div class="section-title">
+                    <i class="fas fa-history"></i>
+                    <h2>Transaction Log</h2>
+                </div>
+                <div class="log-actions">
+                    <button class="btn btn-success" onclick="exportToCSV()">
+                        <i class="fas fa-file-csv"></i> Export CSV
+                    </button>
+                    <button class="btn btn-danger" onclick="clearHistory()">
+                        <i class="fas fa-trash"></i> Clear
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table id="transactionTable">
+                    <thead>
+                        <tr>
+                            <th>Transaction ID</th>
+                            <th>Date & Time</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactionBody">
+                        <!-- Transactions will be added here -->
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: rgba(255,255,255,0.5); padding: 40px;">
+                                <i class="fas fa-inbox" style="font-size: 40px; margin-bottom: 10px;"></i><br>
+                                No transactions yet. Make your first payment!
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 30;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                const size = Math.random() * 15 + 5;
+                const left = Math.random() * 100;
+                const delay = Math.random() * 20;
+                const duration = Math.random() * 15 + 10;
+                
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${left}%`;
+                particle.style.animationDelay = `${delay}s`;
+                particle.style.animationDuration = `${duration}s`;
+                
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Account Balances
+        let userBalance = 15250.75;
+        let merchantBalance = 8745.30;
+        
+        // Transaction History
+        let transactions = [];
+        
+        // Transaction counter
+        let transactionCounter = 1234;
+
+        // Update balances in UI
+        function updateBalances() {
+            document.getElementById('userBalance').textContent = userBalance.toFixed(2);
+            document.getElementById('merchantBalance').textContent = merchantBalance.toFixed(2);
+        }
+
+        // Generate random transaction reference
+        function generateTransactionRef() {
+            transactionCounter++;
+            const date = new Date();
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            return `TXN-${year}-${String(transactionCounter).padStart(6, '0')}`;
+        }
+
+        // Show status indicator
+        function showStatus(message, type) {
+            const indicator = document.getElementById('statusIndicator');
+            const messageSpan = document.getElementById('statusMessage');
+            
+            indicator.className = `status-indicator ${type}`;
+            messageSpan.textContent = message;
+            indicator.style.display = 'flex';
+            
+            setTimeout(() => {
+                indicator.style.display = 'none';
+            }, 3000);
+        }
+
+        // Show OTP Modal
+        function showOTPModal() {
+            const otp = Math.floor(1000 + Math.random() * 9000);
+            document.getElementById('otpDisplay').textContent = otp;
+            document.getElementById('otpModal').classList.add('active');
+            document.getElementById('otpInput').value = '';
+            document.getElementById('otpInput').focus();
+            return otp;
+        }
+
+        let currentOTP = null;
+        let pendingTransaction = null;
+
+        // Close OTP Modal
+        function closeOTPModal() {
+            document.getElementById('otpModal').classList.remove('active');
+            pendingTransaction = null;
+        }
+
+        // Verify OTP
+        function verifyOTP() {
+            const enteredOTP = document.getElementById('otpInput').value;
+            
+            if (enteredOTP === String(currentOTP)) {
+                closeOTPModal();
+                // Complete the transaction
+                completeTransaction(pendingTransaction);
+            } else {
+                alert('Invalid OTP!');
+                // Show error animation
+                document.querySelector('.modal-content').classList.add('error-shake');
+                setTimeout(() => {
+                    document.querySelector('.modal-content').classList.remove('error-shake');
+                }, 500);
+            }
+        }
+
+        // Complete transaction after OTP verification
+        function completeTransaction(transactionData) {
+            const { amount, method } = transactionData;
+            
+            // Begin transaction simulation
+            console.log('BEGIN TRANSACTION');
+            
+            // Check for random fraud (10% chance)
+            const fraudDetected = Math.random() < 0.1;
+            
+            if (fraudDetected) {
+                // Show fraud alert
+                document.getElementById('fraudAlert').style.display = 'flex';
+                setTimeout(() => {
+                    document.getElementById('fraudAlert').style.display = 'none';
+                }, 5000);
+                
+                // ROLLBACK transaction
+                console.log('ROLLBACK TRANSACTION - Fraud detected');
+                
+                // Add to transaction history (failed)
+                addTransactionToHistory(amount, 'failed', 'ROLLBACK', 'Fraud detected');
+                
+                // Update stats
+                updateStats();
+                
+                // Show error animation
+                document.querySelector('.payment-section').classList.add('error-shake');
+                setTimeout(() => {
+                    document.querySelector('.payment-section').classList.remove('error-shake');
+                }, 500);
+                
+                showStatus('Transaction Failed - Fraud Detection', 'error');
+                
+                return;
+            }
+            
+            // Process the transaction
+            if (amount > 0 && userBalance >= amount) {
+                // COMMIT transaction
+                console.log('COMMIT TRANSACTION');
+                
+                // Deduct from user
+                userBalance -= amount;
+                // Add to merchant
+                merchantBalance += amount;
+                
+                // Update UI
+                updateBalances();
+                
+                // Add to transaction history (success)
+                addTransactionToHistory(amount, 'success', 'COMMIT', method);
+                
+                // Show success animation
+                showStatus('Transaction Committed Successfully!', 'success');
+                
+                // Create success checkmark animation
+                const payBtn = document.getElementById('payBtn');
+                payBtn.innerHTML = '<i class="fas fa-check"></i> Payment Successful!';
+                payBtn.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
+                
+                setTimeout(() => {
+                    payBtn.innerHTML = '<i class="fas fa-lock"></i><span>Pay Securely</span>';
+                    payBtn.style.background = 'var(--primary-gradient)';
+                }, 3000);
+            } else {
+                // ROLLBACK transaction
+                console.log('ROLLBACK TRANSACTION - Insufficient funds');
+                
+                // Add to transaction history (failed)
+                addTransactionToHistory(amount, 'failed', 'ROLLBACK', 'Insufficient funds');
+                
+                // Show error animation
+                document.querySelector('.payment-section').classList.add('error-shake');
+                setTimeout(() => {
+                    document.querySelector('.payment-section').classList.remove('error-shake');
+                }, 500);
+                
+                showStatus('Transaction Failed - Insufficient Balance', 'error');
+            }
+            
+            // Update stats
+            updateStats();
+        }
+
+        // Process payment
+        function processPayment() {
+            const amount = parseFloat(document.getElementById('amount').value);
+            const method = document.getElementById('paymentMethod').value;
+            const payBtn = document.getElementById('payBtn');
+            const progressBar = document.getElementById('progressBar');
+            const progressFill = document.getElementById('progressFill');
+            
+            // Validate amount
+            if (!amount || amount <= 0) {
+                showStatus('Please enter a valid amount', 'error');
+                document.getElementById('amount').classList.add('error-shake');
+                setTimeout(() => {
+                    document.getElementById('amount').classList.remove('error-shake');
+                }, 500);
+                return;
+            }
+            
+            // Show loading state
+            payBtn.classList.add('loading');
+            payBtn.innerHTML = '<i class="fas fa-spinner"></i> Processing...';
+            
+            // Show progress bar
+            progressBar.classList.add('active');
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 10;
+                progressFill.style.width = progress + '%';
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    progressBar.classList.remove('active');
+                }
+            }, 100);
+            
+            // Simulate processing delay
+            setTimeout(() => {
+                payBtn.classList.remove('loading');
+                
+                // Generate new transaction reference
+                document.getElementById('transactionRef').textContent = generateTransactionRef();
+                
+                // Show OTP verification
+                currentOTP = showOTPModal();
+                pendingTransaction = { amount, method };
+                
+            }, 1000);
+        }
+
+        // Add transaction to history
+        function addTransactionToHistory(amount, status, action, method) {
+            const now = new Date();
+            const dateTime = now.toLocaleString();
+            const transactionId = document.getElementById('transactionRef').textContent;
+            
+            const transaction = {
+                id: transactionId,
+                dateTime: dateTime,
+                amount: amount,
+                status: status,
+                action: action,
+                method: method
+            };
+            
+            transactions.unshift(transaction); // Add to beginning
+            renderTransactionTable();
+        }
+
+        // Render transaction table
+        function renderTransactionTable() {
+            const tbody = document.getElementById('transactionBody');
+            
+            if (transactions.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: rgba(255,255,255,0.5); padding: 40px;">
+                            <i class="fas fa-inbox" style="font-size: 40px; margin-bottom: 10px;"></i><br>
+                            No transactions yet. Make your first payment!
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = transactions.map(t => `
+                <tr>
+                    <td><code style="color: #667eea;">${t.id}</code></td>
+                    <td>${t.dateTime}</td>
+                    <td><strong>$${t.amount.toFixed(2)}</strong></td>
+                    <td>
+                        <span class="status-badge status-${t.status}">
+                            ${t.status === 'success' ? '✅ Success' : '❌ Failed'}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="${t.action === 'COMMIT' ? 'commit-badge' : 'rollback-badge'}">
+                            <i class="fas fa-${t.action === 'COMMIT' ? 'check' : 'times'}"></i>
+                            ${t.action}
+                        </span>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Update dashboard stats
+        function updateStats() {
+            const total = transactions.length;
+            const successful = transactions.filter(t => t.status === 'success').length;
+            const failed = transactions.filter(t => t.status === 'failed').length;
+            const revenue = transactions
+                .filter(t => t.status === 'success')
+                .reduce((sum, t) => sum + t.amount, 0);
+            
+            document.getElementById('totalTransactions').textContent = total;
+            document.getElementById('successfulTransactions').textContent = successful;
+            document.getElementById('failedTransactions').textContent = failed;
+            document.getElementById('totalRevenue').textContent = '$' + revenue.toFixed(2);
+        }
+
+        // Export to CSV
+        function exportToCSV() {
+            if (transactions.length === 0) {
+                alert('No transactions to export!');
+                return;
+            }
+            
+            let csvContent = "Transaction ID,Date & Time,Amount,Status,Action\n";
+            
+            transactions.forEach(t => {
+                csvContent += `${t.id},${t.dateTime},${t.amount},${t.status},${t.action}\n`;
+            });
+            
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `transactions_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+            
+            showStatus('Transactions exported successfully!', 'success');
+        }
+
+        // Clear history
+        function clearHistory() {
+            if (confirm('Are you sure you want to clear all transaction history?')) {
+                transactions = [];
+                renderTransactionTable();
+                updateStats();
+                showStatus('History cleared', 'info');
+            }
+        }
+
+        // Theme toggle
+        function toggleTheme() {
+            const body = document.body;
+            const themeToggle = document.getElementById('themeToggle');
+            const icon = themeToggle.querySelector('i');
+            
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+                icon.className = 'fas fa-moon';
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                icon.className = 'fas fa-sun';
+            }
+        }
+
+        // Initialize
+        window.onload = function() {
+            createParticles();
+            updateBalances();
+            updateStats();
+            
+            // Set initial transaction reference
+            document.getElementById('transactionRef').textContent = generateTransactionRef();
+            
+            // Add some sample transactions
+            const sampleTransactions = [
+                { amount: 249.99, status: 'success', action: 'COMMIT', method: 'card' },
+                { amount: 49.99, status: 'success', action: 'COMMIT', method: 'upi' },
+                { amount: 500, status: 'failed', action: 'ROLLBACK', method: 'card' }
+            ];
+            
+            sampleTransactions.forEach(t => {
+                const now = new Date();
+                now.setHours(now.getHours() - Math.floor(Math.random() * 24));
+                transactions.push({
+                    id: `TXN-2024-${String(Math.floor(100000 + Math.random() * 900000)).substring(0, 6)}`,
+                    dateTime: now.toLocaleString(),
+                    amount: t.amount,
+                    status: t.status,
+                    action: t.action,
+                    method: t.method
+                });
+            });
+            
+            renderTransactionTable();
+            updateStats();
+        };
+    </script>
+</body>
+</html>

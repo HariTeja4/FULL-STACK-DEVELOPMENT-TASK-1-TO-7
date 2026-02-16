@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>✨ CRYSTAL CLEAR · ULTIMATE FEEDBACK FORM</title>
+  <style>
+    /* ----- RESET & CLEAR TYPOGRAPHY ----- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --card: #ffffff;
+      --text: #0f172a;
+      --text-light: #334155;
+      --border: #e2e8f0;
+      --border-focus: #3b82f6;
+      --accent: #2563eb;
+      --accent-light: #3b82f620;
+      --error: #dc2626;
+      --success: #16a34a;
+      --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    }
+
+    body.dark {
+      --bg: #0b1120;
+      --surface: #1e293b;
+      --card: #1e293b;
+      --text: #f1f5f9;
+      --text-light: #cbd5e1;
+      --border: #334155;
+      --border-focus: #60a5fa;
+      --accent: #3b82f6;
+      --accent-light: #3b82f630;
+      --error: #ef4444;
+      --success: #22c55e;
+      --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.5);
+      --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.5);
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 1.5rem;
+      transition: background-color 0.2s, color 0.2s;
+      line-height: 1.5;
+    }
+
+    /* container - NO BLUR, crisp edges */
+    .container {
+      max-width: 1440px;
+      margin: 0 auto;
+      background: var(--surface);
+      border-radius: 32px;
+      box-shadow: var(--shadow-lg);
+      padding: 2rem;
+      border: 1px solid var(--border);
+    }
+
+    /* header - sharp */
+    .header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid var(--border);
+    }
+
+    .points-panel {
+      background: linear-gradient(135deg, var(--accent), #7c3aed);
+      color: white;
+      padding: 0.75rem 2rem;
+      border-radius: 100px;
+      font-weight: 700;
+      font-size: 1.2rem;
+      box-shadow: var(--shadow);
+      display: flex;
+      gap: 2rem;
+    }
+
+    .badge-panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 0.6rem 1.5rem;
+      border-radius: 100px;
+      font-weight: 500;
+    }
+
+    .theme-btn {
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 0.6rem 1.5rem;
+      border-radius: 100px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .theme-btn:hover {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    /* progress - crisp */
+    .progress-section {
+      margin-bottom: 2rem;
+    }
+
+    .progress-bar {
+      height: 10px;
+      background: var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), #7c3aed);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .stats-row {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 0.5rem;
+      color: var(--text-light);
+      font-size: 0.95rem;
+    }
+
+    /* form grid - clean */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 1.8rem;
+      margin: 2rem 0;
+    }
+
+    /* section cards - NO BLUR, sharp shadows */
+    .section-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 1.8rem;
+      box-shadow: var(--shadow);
+      transition: all 0.2s ease;
+    }
+
+    .section-card:hover {
+      box-shadow: var(--shadow-lg);
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .section-card h3 {
+      font-size: 1.3rem;
+      margin-bottom: 1.5rem;
+      color: var(--accent);
+      border-left: 4px solid var(--accent);
+      padding-left: 1rem;
+    }
+
+    /* form elements - crisp */
+    input, select, textarea {
+      width: 100%;
+      padding: 0.9rem 1.2rem;
+      margin: 0.3rem 0;
+      background: var(--bg);
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      font-size: 1rem;
+      color: var(--text);
+      transition: all 0.2s;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-light);
+    }
+
+    input.invalid, select.invalid, textarea.invalid {
+      border-color: var(--error);
+    }
+
+    .invalid-feedback {
+      color: var(--error);
+      font-size: 0.85rem;
+      margin-top: 0.25rem;
+    }
+
+    /* inline groups */
+    .row {
+      display: flex;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .country-code {
+      width: 120px;
+    }
+
+    /* rich toolbar */
+    .toolbar {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      margin: 0.8rem 0;
+    }
+
+    .toolbar-btn {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 30px;
+      padding: 0.5rem 1.2rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .toolbar-btn:hover {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    /* ratings - clear */
+    .rating-stars, .rating-hearts {
+      display: flex;
+      gap: 0.5rem;
+      font-size: 2.2rem;
+      line-height: 1;
+    }
+
+    .star, .heart, .thumb, .smiley {
+      cursor: pointer;
+      transition: transform 0.2s;
+      color: var(--text-light);
+    }
+
+    .star.selected { color: #fbbf24; }
+    .heart.selected { color: #f43f5e; }
+    .thumb.selected { color: var(--accent); }
+    .smiley.selected { transform: scale(1.2); }
+
+    .slider-container {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin: 0.8rem 0;
+    }
+
+    input[type="range"] {
+      padding: 0;
+      width: 100%;
+    }
+
+    /* dropzone - sharp */
+    .dropzone {
+      border: 3px dashed var(--border);
+      border-radius: 20px;
+      padding: 2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: var(--bg);
+    }
+
+    .dropzone.dragover {
+      border-color: var(--accent);
+      background: var(--accent-light);
+    }
+
+    /* file list */
+    .file-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.8rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .file-progress {
+      height: 6px;
+      background: var(--border);
+      border-radius: 3px;
+      flex: 1;
+    }
+
+    .file-progress-fill {
+      height: 100%;
+      background: var(--accent);
+      width: 0%;
+      border-radius: 3px;
+    }
+
+    /* badges */
+    .badges-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      margin: 1.5rem 0;
+    }
+
+    .badge {
+      background: linear-gradient(135deg, var(--accent), #7c3aed);
+      color: white;
+      padding: 0.4rem 1.2rem;
+      border-radius: 100px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      box-shadow: var(--shadow);
+    }
+
+    /* buttons */
+    .btn {
+      padding: 1rem 2.5rem;
+      border-radius: 40px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: var(--bg);
+      border: 2px solid var(--border);
+      color: var(--text);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+      border: none;
+      box-shadow: var(--shadow);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+      filter: brightness(1.1);
+    }
+
+    /* debug panel - sharp */
+    .debug-panel {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      background: var(--surface);
+      border: 2px solid var(--accent);
+      border-radius: 20px;
+      padding: 1.2rem;
+      width: 300px;
+      box-shadow: var(--shadow-lg);
+      z-index: 1000;
+    }
+
+    .debug-log {
+      max-height: 150px;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 0.8rem;
+      margin: 0.8rem 0;
+      padding: 0.5rem;
+      background: var(--bg);
+      border-radius: 8px;
+    }
+
+    /* toast - clear */
+    .toast-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 1001;
+    }
+
+    .toast {
+      background: var(--surface);
+      border: 2px solid var(--accent);
+      color: var(--text);
+      padding: 1rem 2rem;
+      border-radius: 50px;
+      margin-top: 0.5rem;
+      box-shadow: var(--shadow-lg);
+      animation: slideIn 0.2s ease;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    /* tutorial overlay */
+    .tutorial {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+    }
+
+    .tutorial-card {
+      background: var(--surface);
+      border-radius: 32px;
+      padding: 2rem;
+      max-width: 500px;
+      border: 2px solid var(--accent);
+    }
+
+    /* responsive */
+    @media (max-width: 700px) {
+      body { padding: 0.8rem; }
+      .container { padding: 1rem; }
+      .points-panel { flex-direction: column; gap: 0.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header with gamification -->
+    <div class="header">
+      <div class="points-panel">
+        <span>🏆 Points: <span id="pointsValue">250</span></span>
+        <span>⭐ Level <span id="levelValue">3</span></span>
+      </div>
+      <div class="badge-panel" id="badgePanel">
+        🎖️ Badges: First Blood, Bug Hunter
+      </div>
+      <button class="theme-btn" id="themeToggle">🌓 Dark/Light</button>
+    </div>
+
+    <!-- Progress bar -->
+    <div class="progress-section">
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill" style="width: 35%"></div>
+      </div>
+      <div class="stats-row">
+        <span id="fieldCounter">42/120 fields filled</span>
+        <span id="autoSaveIndicator">💾 Auto-saved 2 min ago</span>
+      </div>
+    </div>
+
+    <!-- Main form -->
+    <form id="feedbackForm">
+      <div class="form-grid" id="formGrid"></div>
+
+      <!-- Action buttons -->
+      <div style="display: flex; gap: 1rem; margin: 2rem 0; flex-wrap: wrap;">
+        <button type="submit" class="btn btn-primary">🚀 SUBMIT FEEDBACK</button>
+        <button type="button" class="btn" id="resetBtn">⟲ Reset</button>
+        <button type="button" class="btn" id="downloadBtn">📥 Download JSON</button>
+      </div>
+    </form>
+
+    <!-- Badges area -->
+    <div class="badges-container" id="badgesContainer">
+      <span class="badge">🔥 First Feedback</span>
+      <span class="badge">🐛 Bug Hunter</span>
+      <span class="badge">⭐ Early Adopter</span>
+    </div>
+  </div>
+
+  <!-- Debug panel -->
+  <div class="debug-panel">
+    <div style="display: flex; justify-content: space-between; font-weight: bold;">
+      <span>🐞 DEBUG PANEL</span>
+      <span id="eventCount">0</span>
+    </div>
+    <div class="debug-log" id="debugLog"></div>
+    <div style="display: flex; justify-content: space-between;">
+      <span>Storage: <span id="storageSize">2.4KB</span></span>
+      <span>Valid: <span id="validStatus">✅</span></span>
+    </div>
+  </div>
+
+  <!-- Toast container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Tutorial overlay (shown once) -->
+  <div class="tutorial" id="tutorialOverlay">
+    <div class="tutorial-card">
+      <h2 style="color: var(--accent); margin-bottom: 1rem;">✨ Welcome to Ultimate Feedback 2.0</h2>
+      <p style="margin-bottom: 1.5rem;">Every interaction earns points! Fill fields, add ratings, upload files. Unlock badges, track everything in debug panel. Crystal clear experience!</p>
+      <button class="btn btn-primary" id="closeTutorial" style="width: 100%;">Start Exploring</button>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // ---------- CRISP STATE MANAGEMENT ----------
+      const state = {
+        points: 250,
+        level: 3,
+        badges: ['First Feedback', 'Bug Hunter', 'Early Adopter'],
+        fieldCount: 42,
+        totalFields: 120,
+        events: [],
+        storageKey: 'ultra_feedback_clear'
+      };
+
+      // DOM elements
+      const pointsSpan = document.getElementById('pointsValue');
+      const levelSpan = document.getElementById('levelValue');
+      const progressFill = document.getElementById('progressFill');
+      const fieldCounter = document.getElementById('fieldCounter');
+      const debugLog = document.getElementById('debugLog');
+      const eventCount = document.getElementById('eventCount');
+      const toastContainer = document.getElementById('toastContainer');
+      const badgePanel = document.getElementById('badgePanel');
+      const badgesContainer = document.getElementById('badgesContainer');
+
+      // Helper: Toast notification
+      function showToast(msg, duration = 3000) {
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.textContent = msg;
+        toastContainer.appendChild(toast);
+        setTimeout(() => toast.remove(), duration);
+      }
+
+      // Helper: Log events
+      function logEvent(eventName, detail = '') {
+        const time = new Date().toLocaleTimeString();
+        state.events.unshift(`[${time}] ${eventName} ${detail}`.substring(0, 60));
+        if (state.events.length > 10) state.events.pop();
+        debugLog.innerHTML = state.events.map(e => `<div>${e}</div>`).join('');
+        eventCount.textContent = state.events.length;
+      }
+
+      // Helper: Add points
+      function addPoints(p) {
+        state.points += p;
+        state.level = Math.floor(state.points / 100) + 1;
+        pointsSpan.textContent = state.points;
+        levelSpan.textContent = state.level;
+        showToast(`+${p} points!`);
+        logEvent('points', `+${p}`);
+
+        // Unlock badges
+        if (state.points >= 500 && !state.badges.includes('Centurion')) {
+          state.badges.push('Centurion');
+          badgePanel.textContent = '🎖️ Badges: ' + state.badges.join(', ');
+          const badge = document.createElement('span');
+          badge.className = 'badge';
+          badge.textContent = '🏅 Centurion';
+          badgesContainer.appendChild(badge);
+          showToast('🏆 Badge Unlocked: Centurion!');
+        }
+      }
+
+      // Update progress
+      function updateProgress() {
+        let filled = 0;
+        document.querySelectorAll('input, select, textarea').forEach(f => {
+          if (f.value && f.value.trim() !== '') filled++;
+        });
+        state.fieldCount = filled;
+        const percent = Math.min(100, (filled / state.totalFields) * 100);
+        progressFill.style.width = percent + '%';
+        fieldCounter.textContent = `${filled}/${state.totalFields} fields filled`;
+      }
+
+      // Validation functions
+      function validateFullName(name) {
+        return /^[A-Za-z\s]{3,50}$/.test(name);
+      }
+
+      function validateEmail(email) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      }
+
+      function validatePhone(phone, code) {
+        return /^[\+\d\s\-]{8,15}$/.test(code + phone);
+      }
+
+      function validateField(field) {
+        let isValid = true;
+        const value = field.value;
+
+        if (field.id === 'fullName') {
+          isValid = validateFullName(value);
+        } else if (field.id === 'email') {
+          isValid = validateEmail(value);
+        } else if (field.id === 'phone') {
+          const code = document.getElementById('countryCode')?.value || '+1';
+          isValid = validatePhone(value, code);
+        } else if (field.id === 'website') {
+          isValid = value === '' || /^https?:\/\/.+\..+/.test(value);
+        } else if (field.id === 'subject') {
+          isValid = value.length <= 100;
+        }
+
+        field.classList.toggle('invalid', !isValid && value.length > 0);
+        return isValid;
+      }
+
+      // Generate form sections dynamically
+      const sections = [
+        {
+          title: '👤 Personal Information',
+          html: `
+            <div class="row">
+              <select id="title" style="width: auto;"><option>Mr</option><option>Mrs</option><option>Ms</option><option>Dr</option><option>Prof</option></select>
+              <input type="text" id="fullName" placeholder="Full Name" style="flex: 1;">
+            </div>
+            <div class="row">
+              <select id="countryCode" class="country-code"><option value="+1">🇺🇸 +1</option><option value="+44">🇬🇧 +44</option><option value="+91">🇮🇳 +91</option></select>
+              <input type="tel" id="phone" placeholder="Phone number" style="flex: 1;">
+            </div>
+            <div class="row">
+              <input type="email" id="email" placeholder="Email address" style="flex: 2;">
+              <input type="date" id="dob" style="flex: 1;">
+              <span>Age: <span id="ageDisplay">-</span></span>
+            </div>
+            <select id="gender">
+              <option>Male</option><option>Female</option><option>Other</option><option>Prefer not to say</option>
+            </select>
+            <select id="occupation">
+              <option>Software Engineer</option><option>Product Manager</option><option>Designer</option><option>Marketing</option>
+              <option>Sales</option><option>Support</option><option>Executive</option><option>Student</option><option>Teacher</option>
+              <option>Consultant</option><option>Architect</option><option>Writer</option><option>Analyst</option><option>Researcher</option>
+            </select>
+            <input type="text" id="company" placeholder="Company" list="companies">
+            <datalist id="companies"><option>Microsoft</option><option>Google</option><option>Apple</option><option>Amazon</option></datalist>
+            <input type="url" id="website" placeholder="Website / LinkedIn">
+            <input type="text" id="address" placeholder="Address">
+            <input type="file" id="avatar" accept="image/*">
+          `
+        },
+        {
+          title: '💬 Feedback Details',
+          html: `
+            <select multiple id="feedbackType" size="3">
+              <option>Bug</option><option>Feature</option><option>UI</option><option>Performance</option><option>Security</option><option>Other</option>
+            </select>
+            <input type="text" id="subject" placeholder="Subject line" maxlength="100">
+            <div id="charCount" style="font-size: 0.85rem; text-align: right;">0/100</div>
+            <div class="toolbar">
+              <button type="button" class="toolbar-btn" id="boldBtn">B</button>
+              <button type="button" class="toolbar-btn" id="italicBtn">I</button>
+              <button type="button" class="toolbar-btn" id="underlineBtn">U</button>
+              <button type="button" class="toolbar-btn" id="emojiBtn">😊</button>
+            </div>
+            <textarea id="feedbackBody" rows="4" placeholder="Write your feedback... Use @mentions #hashtags"></textarea>
+            <div style="display: flex; justify-content: space-between; margin-top: 0.5rem;">
+              <span>😊😢😡👍👎 <span id="sentimentScore">Neutral</span></span>
+              <span>Words: <span id="wordCount">0</span></span>
+            </div>
+          `
+        },
+        {
+          title: '⭐ Ratings',
+          html: `
+            <div>Star Rating: <div class="rating-stars" id="starRating">★★★★★</div></div>
+            <div>Heart Rating: <div class="rating-hearts" id="heartRating">♥♥♥♥♥</div></div>
+            <div style="display: flex; gap: 2rem; margin: 1rem 0;">
+              <span class="thumb" id="thumbsUp">👍</span>
+              <span class="thumb" id="thumbsDown">👎</span>
+            </div>
+            <div class="smiley-row" style="display: flex; gap: 1rem; font-size: 2rem;" id="smileyRow">
+              😖😟😐🙂😍
+            </div>
+            <div class="slider-container">
+              <span>NPS</span>
+              <input type="range" min="0" max="10" id="npsSlider">
+              <span id="npsValue">5</span>
+            </div>
+            <div class="slider-container">
+              <span>Satisfaction</span>
+              <input type="range" min="0" max="100" id="satisfactionSlider">
+            </div>
+          `
+        },
+        {
+          title: '📎 Attachments',
+          html: `
+            <div class="dropzone" id="dropZone">
+              📂 Drag & drop files here or click to select
+            </div>
+            <div id="fileList"></div>
+            <div class="file-progress" style="margin-top: 1rem;">
+              <div class="file-progress-fill" id="uploadProgress" style="width: 0%;"></div>
+            </div>
+          `
+        },
+        {
+          title: '⚙️ Additional Info',
+          html: `
+            <textarea id="steps" rows="3" placeholder="Steps to reproduce..."></textarea>
+            <div class="row">
+              <input type="text" id="expected" placeholder="Expected behavior">
+              <input type="text" id="actual" placeholder="Actual behavior">
+            </div>
+            <select id="workaround">
+              <option>Yes, workaround exists</option><option>No workaround</option><option>Partial workaround</option>
+            </select>
+            <input type="text" id="relatedId" placeholder="Related feedback ID">
+            <div style="margin-top: 1rem;">🔍 Duplicate check: <span id="duplicateStatus">✓ No duplicates found</span></div>
+          `
+        }
+      ];
+
+      // Render form
+      const formGrid = document.getElementById('formGrid');
+      sections.forEach(section => {
+        const card = document.createElement('div');
+        card.className = 'section-card';
+        card.innerHTML = `<h3>${section.title}</h3>${section.html}`;
+        formGrid.appendChild(card);
+      });
+
+      // ---------- EVENT LISTENERS ----------
+      
+      // Real-time validation
+      document.querySelectorAll('input, select, textarea').forEach(field => {
+        field.addEventListener('input', function() {
+          validateField(this);
+          updateProgress();
+          autoSave();
+          if (this.id === 'subject') {
+            document.getElementById('charCount').textContent = this.value.length + '/100';
+          }
+        });
+        field.addEventListener('focus', () => logEvent('focus', field.id));
+        field.addEventListener('blur', () => logEvent('blur', field.id));
+      });
+
+      // Age calculation
+      document.getElementById('dob')?.addEventListener('change', function() {
+        if (this.value) {
+          const age = Math.floor((new Date() - new Date(this.value)) / (365.25 * 24 * 60 * 60 * 1000));
+          document.getElementById('ageDisplay').textContent = age;
+        }
+      });
+
+      // Word count and sentiment
+      document.getElementById('feedbackBody')?.addEventListener('input', function() {
+        const words = this.value.match(/\b\w+\b/g)?.length || 0;
+        document.getElementById('wordCount').textContent = words;
+        // Simple sentiment simulation
+        const sentiment = words > 20 ? 'Positive 😊' : words > 5 ? 'Neutral 😐' : 'Brief';
+        document.getElementById('sentimentScore').textContent = sentiment;
+      });
+
+      // Star rating
+      function initRating(containerId, className) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        const items = container.querySelectorAll('span');
+        items.forEach((item, index) => {
+          item.addEventListener('click', () => {
+            items.forEach((s, i) => s.classList.toggle('selected', i <= index));
+            addPoints(5);
+            logEvent('rating', containerId);
+          });
+        });
+      }
+
+      // Reinitialize ratings after dynamic content
+      setTimeout(() => {
+        document.querySelectorAll('#starRating span').forEach(s => s.classList.remove('selected'));
+        document.querySelectorAll('#heartRating span').forEach(s => s.classList.remove('selected'));
+        initRating('starRating', 'star');
+        initRating('heartRating', 'heart');
+
+        // Thumbs
+        document.getElementById('thumbsUp')?.addEventListener('click', function() {
+          this.classList.add('selected');
+          document.getElementById('thumbsDown').classList.remove('selected');
+          addPoints(3);
+        });
+        document.getElementById('thumbsDown')?.addEventListener('click', function() {
+          this.classList.add('selected');
+          document.getElementById('thumbsUp').classList.remove('selected');
+          addPoints(3);
+        });
+
+        // Smileys
+        const smileyRow = document.getElementById('smileyRow');
+        if (smileyRow) {
+          smileyRow.innerHTML = '😖😟😐🙂😍'.split('').map(s => `<span class="smiley" style="cursor: pointer;">${s}</span>`).join('');
+          smileyRow.querySelectorAll('.smiley').forEach(s => {
+            s.addEventListener('click', function() {
+              smileyRow.querySelectorAll('.smiley').forEach(sm => sm.classList.remove('selected'));
+              this.classList.add('selected');
+              addPoints(4);
+            });
+          });
+        }
+      }, 100);
+
+      // NPS slider
+      document.getElementById('npsSlider')?.addEventListener('input', function() {
+        document.getElementById('npsValue').textContent = this.value;
+        addPoints(1);
+      });
+
+      // Drag & drop
+      const dropZone = document.getElementById('dropZone');
+      if (dropZone) {
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(ev => {
+          dropZone.addEventListener(ev, e => e.preventDefault());
+        });
+        dropZone.addEventListener('dragover', () => dropZone.classList.add('dragover'));
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+        dropZone.addEventListener('drop', (e) => {
+          dropZone.classList.remove('dragover');
+          const files = Array.from(e.dataTransfer.files);
+          const fileList = document.getElementById('fileList');
+          files.forEach(file => {
+            const item = document.createElement('div');
+            item.className = 'file-item';
+            item.innerHTML = `
+              <span>📄 ${file.name}</span>
+              <div class="file-progress"><div class="file-progress-fill" style="width:100%"></div></div>
+            `;
+            fileList.appendChild(item);
+          });
+          document.getElementById('uploadProgress').style.width = '100%';
+          addPoints(15);
+          showToast('Files uploaded successfully!');
+          logEvent('drop', files.length + ' files');
+        });
+      }
+
+      // Auto-save
+      function autoSave() {
+        const formData = {};
+        document.querySelectorAll('input, select, textarea').forEach(f => formData[f.id] = f.value);
+        localStorage.setItem(state.storageKey, JSON.stringify(formData));
+        document.getElementById('autoSaveIndicator').textContent = '💾 Auto-saved ' + new Date().toLocaleTimeString();
+      }
+
+      // Load saved draft
+      function loadDraft() {
+        const saved = localStorage.getItem(state.storageKey);
+        if (saved) {
+          try {
+            const data = JSON.parse(saved);
+            Object.entries(data).forEach(([id, value]) => {
+              const field = document.getElementById(id);
+              if (field) field.value = value;
+            });
+            showToast('📂 Draft loaded');
+            updateProgress();
+          } catch (e) {}
+        }
+      }
+      loadDraft();
+
+      // Submit handler
+      document.getElementById('feedbackForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        addPoints(100);
+        showToast('🎉 Feedback submitted! +100 points');
+        logEvent('SUBMIT', 'form submitted');
+      });
+
+      // Reset
+      document.getElementById('resetBtn').addEventListener('click', () => {
+        if (confirm('Reset all fields?')) {
+          document.querySelectorAll('input, select, textarea').forEach(f => f.value = '');
+          localStorage.removeItem(state.storageKey);
+          updateProgress();
+          showToast('🧹 Form reset');
+        }
+      });
+
+      // Download JSON
+      document.getElementById('downloadBtn').addEventListener('click', () => {
+        const data = {};
+        document.querySelectorAll('input, select, textarea').forEach(f => data[f.id] = f.value);
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'feedback-data.json';
+        a.click();
+        showToast('📥 JSON downloaded');
+      });
+
+      // Theme toggle
+      document.getElementById('themeToggle').addEventListener('click', () => {
+        document.body.classList.toggle('dark');
+        showToast('Theme changed');
+      });
+
+      // Close tutorial
+      document.getElementById('closeTutorial').addEventListener('click', () => {
+        document.getElementById('tutorialOverlay').style.display = 'none';
+        showToast('✨ Let\'s get started!');
+      });
+
+      // Keyboard events
+      document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.key === 'Enter') {
+          document.getElementById('feedbackForm').dispatchEvent(new Event('submit'));
+        }
+        if (e.key === 'Escape') {
+          showToast('ESC pressed');
+        }
+        logEvent('keydown', e.key);
+      });
+
+      // Window events
+      window.addEventListener('online', () => showToast('🌐 Back online'));
+      window.addEventListener('offline', () => showToast('📡 Offline mode'));
+
+      // Mouse move parallax (subtle)
+      window.addEventListener('mousemove', (e) => {
+        const x = (e.clientX / window.innerWidth - 0.5) * 10;
+        const y = (e.clientY / window.innerHeight - 0.5) * 10;
+        document.querySelector('.container').style.transform = `translate(${x}px, ${y}px)`;
+      });
+
+      // Initialize
+      updateProgress();
+      addPoints(0); // Refresh display
+      logEvent('INIT', 'form loaded');
+      showToast('✨ Welcome to Ultimate Feedback!');
+    })();
+  </script>
+</body>
+</html>

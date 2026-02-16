@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fun Student Portal</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #ff9a9e, #fad0c4, #fad0c4);
+            overflow-x: hidden;
+        }
+
+        /* Floating Decorations */
+        .star {
+            position: absolute;
+            font-size: 25px;
+            animation: float 6s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .container {
+            width: 450px;
+            margin: 40px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            animation: slideIn 1s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        h2 {
+            text-align: center;
+            color: #ff4081;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin: 8px 0;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            background: linear-gradient(to right, #ff758c, #ff7eb3);
+            border: none;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            transition: 0.3s;
+        }
+
+        #message {
+            text-align: center;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 15px;
+            border-collapse: collapse;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background: #ff7eb3;
+            color: white;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: center;
+        }
+
+        img.preview {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Floating Stars -->
+<div class="star" style="top:10%; left:10%;">⭐</div>
+<div class="star" style="top:20%; left:80%;">🌟</div>
+<div class="star" style="top:70%; left:15%;">✨</div>
+<div class="star" style="top:80%; left:75%;">💫</div>
+
+<!-- Registration Form -->
+<div class="container" id="registerPage">
+    <h2>🎓 Student Registration</h2>
+
+    <input type="text" id="name" placeholder="Full Name">
+    <input type="text" id="regno" placeholder="Register Number">
+    <input type="email" id="email" placeholder="Email">
+    <input type="file" id="photo">
+    <input type="password" id="password" placeholder="Password">
+    <input type="password" id="confirmPassword" placeholder="Confirm Password">
+
+    <button onclick="register()">Register</button>
+    <div id="message"></div>
+</div>
+
+<!-- Login Page -->
+<div class="container hidden" id="loginPage">
+    <h2>🔐 Student Login</h2>
+
+    <input type="text" id="loginRegno" placeholder="Register Number">
+    <input type="password" id="loginPassword" placeholder="Password">
+
+    <button onclick="login()">Login</button>
+    <div id="loginMessage"></div>
+</div>
+
+<!-- Student List -->
+<div class="container hidden" id="listPage">
+    <h2>📋 Registered Students</h2>
+    <table id="studentTable">
+        <tr>
+            <th>Photo</th>
+            <th>Name</th>
+            <th>Reg No</th>
+            <th>Email</th>
+        </tr>
+    </table>
+</div>
+
+<script>
+
+let students = [];
+
+function register() {
+    let name = document.getElementById("name").value;
+    let regno = document.getElementById("regno").value;
+    let email = document.getElementById("email").value;
+    let password = document.getElementById("password").value;
+    let confirmPassword = document.getElementById("confirmPassword").value;
+    let photoInput = document.getElementById("photo");
+    let message = document.getElementById("message");
+
+    if (!name || !regno || !email || !password || !confirmPassword) {
+        message.style.color = "red";
+        message.innerHTML = "Fill all fields ❌";
+        return;
+    }
+
+    if (password !== confirmPassword) {
+        message.style.color = "red";
+        message.innerHTML = "Passwords do not match ❌";
+        return;
+    }
+
+    let reader = new FileReader();
+    reader.onload = function(e) {
+
+        students.push({
+            name: name,
+            regno: regno,
+            email: email,
+            password: password,
+            photo: e.target.result
+        });
+
+        message.style.color = "green";
+        message.innerHTML = "Registration Successful ✅";
+
+        setTimeout(() => {
+            document.getElementById("registerPage").classList.add("hidden");
+            document.getElementById("loginPage").classList.remove("hidden");
+        }, 1500);
+    };
+
+    if (photoInput.files[0]) {
+        reader.readAsDataURL(photoInput.files[0]);
+    }
+}
+
+function login() {
+    let regno = document.getElementById("loginRegno").value;
+    let password = document.getElementById("loginPassword").value;
+    let loginMessage = document.getElementById("loginMessage");
+
+    let found = students.find(s => s.regno === regno && s.password === password);
+
+    if (found) {
+        loginMessage.style.color = "green";
+        loginMessage.innerHTML = "Login Successful 🎉";
+
+        document.getElementById("loginPage").classList.add("hidden");
+        document.getElementById("listPage").classList.remove("hidden");
+
+        displayStudents();
+    } else {
+        loginMessage.style.color = "red";
+        loginMessage.innerHTML = "Invalid Credentials ❌";
+    }
+}
+
+function displayStudents() {
+    let table = document.getElementById("studentTable");
+
+    students.forEach(student => {
+        let row = table.insertRow();
+        row.insertCell(0).innerHTML = `<img src="${student.photo}" class="preview">`;
+        row.insertCell(1).innerHTML = student.name;
+        row.insertCell(2).innerHTML = student.regno;
+        row.insertCell(3).innerHTML = student.email;
+    });
+}
+
+</script>
+
+</body>
+</html>
